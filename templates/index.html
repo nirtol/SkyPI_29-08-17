@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<html>
+    <style>
+	  * {
+	    padding: 0;
+	    margin: 0;
+	  }
+	  .fit { /* set relative picture size */
+	    max-width: 100%;
+	    max-height: 100%;
+	  }
+	  .center {
+	    display: block;
+	    margin: auto;
+	  }
+    </style>
+    <head>
+        <title>SkyPi</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    </head>
+    <body onload="setTimeout('init(0, 25, 1);', 100);">
+        <button id="goLiveButton" onclick="buttonGoLiveClicked()">Go Live!</button>
+	<input type='text' name='key' hidden=true>
+	<button id="submitKey" onclick="submitKey()" hidden = true>Submit Key</button>
+	<button id="armQuadCop" onclick="buttonarmQuadCop()">Turn On</button>
+
+        <div id="zone_joystick"></div>
+	<div><img id="mjpeg_dest" src="{{ url_for('static', filename='loading.jpg') }}" class="center fit"></div>
+        <div id="zone_joystick2"></div>
+        <div id="result"></div>
+	<script type="text/javascript" language="JavaScript">
+	  function set_body_height() { // set body height = window height
+	    $('body').height($(window).height());
+	  }
+	  $(document).ready(function() {
+	    $(window).bind('resize', set_body_height);
+	    set_body_height();
+	  });
+	</script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='nipplejs.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='script2.js') }}"></script>
+        <script type="text/javascript">
+		var liveModeActive = false;
+		var quadCopArmed = false;
+
+			function buttonarmQuadCop(){
+				var yawValue = 1000;
+				var throttleValue = 1000;
+				if (!quadCopArmed){
+					quadCopArmed = true;
+					var elem = document.getElementById("armQuadCop");
+					elem.innerText = "Turn OFF";
+				}
+				else{
+					quadCopArmed = false
+					document.getElementById("armQuadCop").innerText = "Turn On";
+					yawValue = 2000;
+				}
+							 
+				valuesJson = {"throttle":throttleValue, "yaw":yawValue};
+				$.getJSON('/', valuesJson, function(data) {
+					return "";
+					});
+				yawValue = 1500;
+				valuesJson = {"throttle":throttleValue, "yaw":yawValue};
+				$.getJSON('/', valuesJson, function(data) {
+					return "";
+				});
+
+			}
+
+			function buttonGoLiveClicked() {
+				if (!liveModeActive){
+					liveModeActive = true;
+					document.getElementById("goLiveButton").innerText = "Stop!";
+					document.getElementsByName('key')[0].hidden=false;
+					document.getElementById("submitKey").hidden = false;
+				}
+				else{
+					liveModeActive = false
+					document.getElementById("goLiveButton").innerText = "Go Live!";
+					document.getElementsByName('key')[0].hidden = true;
+					document.getElementById("submitKey").hidden = true;
+
+				}
+					
+
+			}
+
+			function submitKey() {
+				document.getElementsByName('key')[0].hidden = true;
+	 			streamKey = document.getElementsByName('key')[0].text;
+				document.getElementsByName('key')[0].hidden = true;
+				document.getElementById("submitKey").hidden = true;
+				valuesJson = {"streamKey": streamKey};
+				$.getJSON('/', valuesJson, function(data) {
+					return "";
+				});
+			}
+
+	    var options = {
+                zone: document.getElementById('zone_joystick'),                  // active zone
+                mode: 'static',                   // 'dynamic', 'static' or 'semi'
+                color: 'red',
+                position: {left: '20%', bottom: '30%'}
+            };
+            var manager = nipplejs.create(options);
+            var initX = manager[0].position.x;
+            var initY = manager[0].position.y;
+            
+    
+            var options2 = {
+                zone: document.getElementById('zone_joystick2'),                  // active zone
+                mode: 'static',                   // 'dynamic', 'static' or 'semi'
+                color: 'blue',
+                position: {left: '80%', bottom: '30%'}
+            };
+            var manager2 = nipplejs.create(options2);
+            
+            
+            var initX2 = manager2[0].position.x;
+            var initY2 = manager2[0].position.y;
+            
+            
+            manager[0].on('move', function (evt, data){
+                //x - yaw, y - throttle
+                currX = data.position.x - initX;
+                currY = initY - data.position.y;
+                yawValue = ((150 + currX) * 10);
+                throttleValue = ((150 + currY) * 10);
+                console.log("{x: " + yawValue + ", y: " + throttleValue + "}");
+                valuesJson = {"yaw":yawValue, "throttle":throttleValue};
+                
+                $.getJSON('/', valuesJson, function(data) {
+                            $("#result").text(data.result);
+                          });
+            }).on('end', function(){
+                yawValue = 1500;
+                
+                valuesJson = {"yaw":yawValue};
+                $.getJSON('/', valuesJson, function(data) {
+                            $("#result").text(data.result);
+                          }); 
+                
+            });
+            
+            manager2[0].on('move', function (evt, data){
+                //x - roll, y - pitch
+                currX = data.position.x - initX2;
+                currY = initY2 - data.position.y;
+                rollValue = ((150 + currX) * 10);
+                pitchValue = ((150 + currY) * 10);
+                console.log("{x: " + rollValue + ", y: " + pitchValue + "}");
+                valuesJson = {"roll":rollValue, "pitch":pitchValue};
+                
+                $.getJSON('/', valuesJson, function(data) {
+                            $("#result").text(data.result);
+                          });
+            }).on('end', function(){
+                rollValue = 1500;
+                pitchValue = 1500;
+                
+                valuesJson = {"roll":rollValue, "pitch":pitchValue};
+
+                $.getJSON('/', valuesJson, function(data) {
+                            $("#result").text(data.result);
+                          }); 
+                
+            });			
+        </script>
+
+    </body>
+</html>

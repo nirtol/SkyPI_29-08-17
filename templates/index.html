@@ -51,6 +51,18 @@ and open the template in the editor.
         <script type="text/javascript">
 		var liveModeActive = false;
 		var quadCopArmed = false;
+		var requestSync = 0;
+		var BUSY_WAIT_CONST = 5;
+	
+			function syncRequests(){
+				if (requestSync != BUSY_WAIT_CONST){
+					requestSync++;
+					return false;
+				}
+
+				requestSync = 0;
+				return true;
+			}
 
 			function buttonarmQuadCop(){
 				var yawValue = 1000;
@@ -133,7 +145,12 @@ and open the template in the editor.
             
             manager[0].on('move', function (evt, data){
                 //x - yaw, y - throttle
-                currX = data.position.x - initX;
+                //busyWait
+		
+		if(!syncRequests())
+			return;
+		
+		currX = data.position.x - initX;
                 currY = initY - data.position.y;
                 yawValue = ((150 + currX) * 10);
                 throttleValue = ((150 + currY) * 10);
@@ -149,12 +166,16 @@ and open the template in the editor.
                 valuesJson = {"yaw":yawValue};
                 $.getJSON('/', valuesJson, function(data) {
                             $("#result").text(data.result);
-                          }); 
+                          });
                 
             });
             
             manager2[0].on('move', function (evt, data){
                 //x - roll, y - pitch
+		//busyWait
+		if(!syncRequests())
+			return;
+		
                 currX = data.position.x - initX2;
                 currY = initY2 - data.position.y;
                 rollValue = ((150 + currX) * 10);

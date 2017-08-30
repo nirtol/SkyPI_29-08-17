@@ -68,6 +68,10 @@ class FlightController:
         print (self)
 
     def write_to_pin(self, direction, value):
+        if value < 1000:
+            value = 1000
+        if value > 2000:
+            value = 2000
         current_direction = PINS[direction]
         current_value = current_direction["pulse"]
         step = STEP if (value > current_value) else -STEP

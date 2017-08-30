@@ -14,6 +14,8 @@ def getDirectionValue(value):
         value = int(value)
         if value > 2000:
             value = 2000
+        if value < 1000:
+            value = 1100
         return value
     except ValueError:
         return 1500

@@ -153,7 +153,9 @@ and open the template in the editor.
 		currX = data.position.x - initX;
                 currY = initY - data.position.y;
                 yawValue = ((150 + currX) * 10);
+		yawValue = Math.floor(yawValue);
                 throttleValue = ((150 + currY) * 10);
+		throttleValue = Math.floor(throttleValue);
                 console.log("{x: " + yawValue + ", y: " + throttleValue + "}");
                 valuesJson = {"yaw":yawValue, "throttle":throttleValue};
                 
@@ -179,7 +181,9 @@ and open the template in the editor.
                 currX = data.position.x - initX2;
                 currY = initY2 - data.position.y;
                 rollValue = ((150 + currX) * 10);
+		rollValue = Math.floor(rollValue);
                 pitchValue = ((150 + currY) * 10);
+		pitchValue = Math.floor(pitchValue);
                 console.log("{x: " + rollValue + ", y: " + pitchValue + "}");
                 valuesJson = {"roll":rollValue, "pitch":pitchValue};
                 

@@ -28,6 +28,8 @@ and open the template in the editor.
     </head>
     <body onload="setTimeout('init(0, 25, 1);', 100);">
         <button id="goLiveButton" onclick="buttonGoLiveClicked()">Go Live!</button>
+	<button id="autoPilot" onclick="autoPilotButton()">Turn on AutoPilot</button>
+
 	<input type='text' name='key' hidden=true>
 	<button id="submitKey" onclick="submitKey()" hidden = true>Submit Key</button>
 	<button id="armQuadCop" onclick="buttonarmQuadCop()">Turn On</button>
@@ -93,6 +95,29 @@ and open the template in the editor.
 				requestSync = 0;
 				return true;
 			}
+		
+			var isAutoPilot = false;
+                        document.getElementById('autoPilot').style.background='green';
+
+    			function autoPilotButton(){
+				if (!isAutoPilot){
+					isAutoPilot = true;
+					document.getElementById("autoPilot").innerText = "Turn off AutoPilot";
+                                        document.getElementById('autoPilot').style.background='red';
+				}
+				else{
+					isAutoPilot = false
+					document.getElementById("autoPilot").innerText = "Turn on AutoPilot";
+                                        document.getElementById('autoPilot').style.background='green';
+				}
+							 
+			        valuesJson = {"R":0, "G":0, "B":0};
+                        	$.getJSON('/', valuesJson, function(data) {
+					return "";
+				});
+			}
+    
+    
 
 			function buttonarmQuadCop(){
 				var yawValue = 1000;

@@ -33,7 +33,11 @@ and open the template in the editor.
 	<button id="armQuadCop" onclick="buttonarmQuadCop()">Turn On</button>
 
         <div id="zone_joystick"></div>
+	<pre id="chooseMessage">Choose a color:</pre>
+        <img id="mjpeg_copy" style="display: none;">
+
 	<div><img id="mjpeg_dest" src="{{ url_for('static', filename='loading.jpg') }}" class="center fit"></div>
+<pre id="output"></pre>
         <div id="zone_joystick2"></div>
         <div id="result"></div>
 	<script type="text/javascript" language="JavaScript">
@@ -52,8 +56,34 @@ and open the template in the editor.
 		var liveModeActive = false;
 		var quadCopArmed = false;
 		var requestSync = 0;
-		var BUSY_WAIT_CONST = 5;
+		var BUSY_WAIT_CONST = 65;
 	
+
+		var isChosen = false;
+		var img = document.getElementById('mjpeg_dest');
+		var img2 = document.getElementById('mjpeg_copy');
+		var canvas = document.createElement('canvas');
+                img.addEventListener("click",(function(e){
+
+	
+                if(true) {
+		    img = document.getElementById('mjpeg_dest');
+		    img2.src = '';
+		    img2.crossOrigin = 'Anonymous';
+	            canvas.width = img2.width;
+                    canvas.height = img2.height;
+                    canvas.getContext('2d').drawImage(img2, 0, 0, img2.width, img2.height);
+                    isChosen = true;
+		    var pixelData = canvas.getContext('2d').getImageData(e.offsetX, e.offsetY, 1, 1).data;
+                    $('#chooseMessage').html('');
+                    valuesJson = {"R":pixelData[0], "G":pixelData[1], "B":pixelData[2]};
+                    console.log(valuesJson);
+                    $.getJSON('/', valuesJson, function(data) {
+                                return false;
+                    });
+                }
+                }) );	
+
 			function syncRequests(){
 				if (requestSync != BUSY_WAIT_CONST){
 					requestSync++;

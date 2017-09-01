@@ -44,7 +44,7 @@ PINS = {
 }
 
 STEP = 10
-STEP_INTERVAL = 0.01
+STEP_INTERVAL = 0.001
 
 
 # =================================
